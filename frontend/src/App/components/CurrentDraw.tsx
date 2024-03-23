@@ -1,16 +1,16 @@
-import React from "react";
-
 interface Props {
   name: string;
   description: string;
   price: number;
   prizePool: number;
   closingIn: number;
+  onClickPlay: () => void;
 }
 
 export default function CurrentDraw(props: Props) {
   var formatedPrizePool = props.prizePool.toLocaleString();
   var formatedClosingIn = props.prizePool;
+
   return (
     <div>
       <div>
@@ -26,7 +26,9 @@ export default function CurrentDraw(props: Props) {
         <h4>Closing In: {formatedClosingIn}</h4>
       </div>
       <div>
-        <button>PLAY</button>
+        <button id="buyEntries" onClick={props.onClickPlay}>
+          PLAY
+        </button>
       </div>
     </div>
   );

@@ -1,15 +1,27 @@
 import React, { useState } from "react";
 import axios from "axios";
-import ProductCard from "./components/ProductCard";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
 import CurrentDraw from "./components/CurrentDraw";
 import YourEntries from "./components/YourEntries";
 import BuyEntries from "./components/BuyEntries";
+import Popup from "./components/Popup";
 
-type MyPaymentMetadata = {};
+//---------CSS--------
+import "./popup.css";
 
-type AuthResult = {
+//TEST-=----------
+/*
+import {
+  signIn,
+  signOut,
+  orderProduct,
+  onModalClose,
+} from "./components/PiFunctions";*/
+
+export type MyPaymentMetadata = {};
+
+export type AuthResult = {
   accessToken: string;
   user: {
     uid: string;
@@ -19,7 +31,7 @@ type AuthResult = {
 
 export type User = AuthResult["user"];
 
-interface PaymentDTO {
+export interface PaymentDTO {
   amount: number;
   user_uid: string;
   created_at: string;
@@ -52,12 +64,12 @@ interface WindowWithEnv extends Window {
 const _window: WindowWithEnv = window;
 const backendURL = _window.__ENV && _window.__ENV.backendURL;
 
-const axiosClient = axios.create({
+export const axiosClient = axios.create({
   baseURL: `${backendURL}`,
   timeout: 20000,
   withCredentials: true,
 });
-const config = {
+export const config = {
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -65,6 +77,24 @@ const config = {
 };
 
 export default function App() {
+  //--------Current Draw--------------
+  const drawName = "Pi-Draw";
+  const drawPrice = 1;
+  const drawDescription = "this dis";
+  var drawPrizePool = 10022;
+  var drawClosingIn = 167838;
+
+  //POPUP
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+
+  const handleBuyEntriesClick = () => {
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
   const [user, setUser] = useState<User | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
 
@@ -157,20 +187,36 @@ export default function App() {
 
   return (
     <>
+      {/* add the Header - - Menu and Login */}
       <Header user={user} onSignIn={signIn} onSignOut={signOut} />
 
+      {/* Adds the Current Draw Component */}
       <CurrentDraw
-        name="Pi-Draw"
-        description="It is drawn"
-        price={1}
-        prizePool={100000}
-        closingIn={13817312}
+        name={drawName}
+        description={drawDescription}
+        price={drawPrice}
+        prizePool={drawPrizePool}
+        closingIn={drawClosingIn}
+        onClickPlay={handleBuyEntriesClick}
       ></CurrentDraw>
 
-      <YourEntries entries={4}></YourEntries>
+      {showPopup && (
+        <Popup>
+          <BuyEntries
+            user={user}
+            name={drawName}
+            price={drawPrice}
+            onClose={handleClosePopup}
+            orderProduct={orderProduct}
+          />
+        </Popup>
+      )}
+      {showPopup && <div className="popup-overlay show" />}
 
-      <BuyEntries name="lol" price={1}></BuyEntries>
+      {/* Shows the Your Entries Component */}
+      <YourEntries user={user}></YourEntries>
 
+      {/* ------ INITIAL PRODUCT CARD FROM DEMO -------
       <ProductCard
         name="Apple Pie"
         description="You know what this is. Pie. Apples. Apple pie."
@@ -193,8 +239,11 @@ export default function App() {
           })
         }
       />
+      */}
 
-      {showModal && <SignIn onSignIn={signIn} onModalClose={onModalClose} />}
+      {showModal && (
+        <SignIn onSignIn={() => signIn} onModalClose={() => onModalClose} />
+      )}
     </>
   );
 }

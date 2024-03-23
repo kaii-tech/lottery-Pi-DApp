@@ -20,7 +20,7 @@ const headerStyle: CSSProperties = {
 export default function Header(props: Props) {
   return (
     <header style={headerStyle}>
-      <div style={{ fontWeight: "bold" }}>Menu</div>
+      <div style={{ fontWeight: "bold" }}>{/*Menu*/}</div>
 
       <div>
         {props.user === null ? (

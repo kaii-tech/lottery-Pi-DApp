@@ -10,7 +10,7 @@ import { Db, MongoClient } from 'mongodb';
 import env from './environments';
 import mountPaymentsEndpoints from './handlers/payments';
 import mountUserEndpoints from './handlers/users';
-import { updateCurrentDrawLocal } from './app/currentDraw';
+import { updateCurrentDrawLocal, createNewDraw, mountCurrentDraw} from './app/currentDraw';
 
 
 
@@ -89,6 +89,11 @@ app.get('/', async (_, res) => {
   res.status(200).send({ message: "Hello, World!" });
 });
 
+// Added by me :)
+const currentDrawRouter = express.Router();
+mountCurrentDraw(currentDrawRouter);
+app.use('/currentdraw', currentDrawRouter);
+
 
 // III. Boot up the app:
 
@@ -110,6 +115,4 @@ app.listen(8000, async () => {
   console.log()
   console.log()
   console.log()
-  updateCurrentDrawLocal(app.locals.currentDrawCollection);
 });
-

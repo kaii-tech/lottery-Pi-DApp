@@ -10,6 +10,8 @@ import { ObjectId } from 'mongodb';
 
 //----- Declaing Const/Var ----
 const newDrawPrice = 1
+const newDrawName = "Pi-Ball"
+const newDrawDescription = "des"
 
 //Function to Update json files
 const writeDataToFile = async (file: string, data: any): Promise<void> => {
@@ -28,6 +30,16 @@ export async function updateCurrentDrawLocal(currentDrawCollection: any) {
     const currentDate = new Date();
     const currentDatePlusTwentyMinutes = new Date(currentDate.getTime() + 20 * 60 * 1000);
 
+    var returnData = {
+        "_id": null,
+        "is_current_draw": false,
+        "name":"error",
+        "start_date": null,
+        "end_date": null,
+        "price": null,
+        "entries": null,
+        "prize_pool": null
+      }
     var currentDraw = await currentDrawCollection.findOne({"is_current_draw": true});
 
     console.log("Get Current Draw from is_current_draw")
@@ -35,10 +47,12 @@ export async function updateCurrentDrawLocal(currentDrawCollection: any) {
 
     if (currentDraw && currentDraw.is_current_draw === true) {
         // Your code here for the case where currentDraw.is_current_draw is true
-        if (currentDraw && currentDraw.end_date < currentDatePlusTwentyMinutes) { 
+        if (currentDraw && currentDate < new Date(currentDraw.end_date.getTime() + 20 * 60 * 1000)) { 
             // The Current Draw is valid
             console.log("We have the Current Draw, Updating file");
             await writeDataToFile("./src/app/current_draw.json", currentDraw)
+
+            returnData = currentDraw
         } else {
             console.error("We have the WRONG Current Draw (current draw is outdated)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         }
@@ -46,6 +60,8 @@ export async function updateCurrentDrawLocal(currentDrawCollection: any) {
         // Your code here for the case where currentDraw.is_current_draw is false or currentDraw is null
         console.error("We dont have the current draw!!!!!!!!!!!!!!!!!!!");
       }
+    
+    return returnData
 
 }
 
@@ -57,14 +73,16 @@ export async function createNewDraw(currentDrawCollection: any) {
 
     const newDraw =  await currentDrawCollection.insertOne({ 
         is_current_draw: true,
+        name: newDrawName,
+        description: newDrawDescription,
         start_date: new Date(),
         end_date: targetDate,
         price: newDrawPrice,
         entries: 0,
         prize_pool: 0
     });
-
     console.log(newDraw);
+    updateCurrentDrawLocal(currentDrawCollection)
 
     return newDraw
 }
@@ -72,6 +90,16 @@ export async function createNewDraw(currentDrawCollection: any) {
 
 
 // ---- API call for frontend to get Current Draw Data
-export async function getCurrentDraw(router: Router) {
-    await updateCurrentDrawLocal
+export async function mountCurrentDraw(router: Router) {
+    router.get('/get', async (req, res) => {
+        const app = req.app;
+        const currentDrawCollection = app.locals.currentDrawCollection;
+
+        const currentDrawData = await updateCurrentDrawLocal(currentDrawCollection)
+        if (currentDrawData.is_current_draw == false) {
+            return(res.status(404))
+        } else {
+            res.status(200).json(currentDrawData)
+        }
+    })
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
@@ -9,15 +9,6 @@ import Popup from "./components/Popup";
 
 //---------CSS--------
 import "./popup.css";
-
-//TEST-=----------
-/*
-import {
-  signIn,
-  signOut,
-  orderProduct,
-  onModalClose,
-} from "./components/PiFunctions";*/
 
 export type MyPaymentMetadata = {};
 
@@ -76,8 +67,18 @@ export const config = {
   },
 };
 
+// ----------------------------------------------------------------------------------------------------
 export default function App() {
   //--------Current Draw--------------
+  const [currentDrawData, setCurrentDrawData] = useState([]);
+
+  useEffect(() => {
+    fetch(`${backendURL}/currentdraw/get`)
+      .then((res) => res.json())
+      .then((data) => setCurrentDrawData(data))
+      .catch((err) => console.error(err));
+  }, []);
+
   const drawName = "Pi-Draw";
   const drawPrice = 1;
   const drawDescription = "this dis";
@@ -187,36 +188,33 @@ export default function App() {
 
   return (
     <>
-      {/* add the Header - - Menu and Login */}
-      <Header user={user} onSignIn={signIn} onSignOut={signOut} />
-
-      {/* Adds the Current Draw Component */}
-      <CurrentDraw
-        name={drawName}
-        description={drawDescription}
-        price={drawPrice}
-        prizePool={drawPrizePool}
-        closingIn={drawClosingIn}
-        onClickPlay={handleBuyEntriesClick}
-      ></CurrentDraw>
-
-      {showPopup && (
-        <Popup>
-          <BuyEntries
-            user={user}
-            name={drawName}
-            price={drawPrice}
-            onClose={handleClosePopup}
-            orderProduct={orderProduct}
-          />
-        </Popup>
-      )}
-      {showPopup && <div className="popup-overlay show" />}
-
-      {/* Shows the Your Entries Component */}
-      <YourEntries user={user}></YourEntries>
-
-      {/* ------ INITIAL PRODUCT CARD FROM DEMO -------
+      <div>
+        {/* add the Header - - Menu and Login */}
+        <Header user={user} onSignIn={signIn} onSignOut={signOut} />
+        {/* Adds the Current Draw Component */}
+        <CurrentDraw
+          name={drawName}
+          description={drawDescription}
+          price={drawPrice}
+          prizePool={drawPrizePool}
+          closingIn={drawClosingIn}
+          onClickPlay={handleBuyEntriesClick}
+        ></CurrentDraw>
+        {showPopup && (
+          <Popup>
+            <BuyEntries
+              user={user}
+              name={drawName}
+              price={drawPrice}
+              onClose={handleClosePopup}
+              orderProduct={orderProduct}
+            />
+          </Popup>
+        )}
+        {showPopup && <div className="popup-overlay show" />}
+        {/* Shows the Your Entries Component */}
+        <YourEntries user={user}></YourEntries>
+        {/* ------ INITIAL PRODUCT CARD FROM DEMO -------
       <ProductCard
         name="Apple Pie"
         description="You know what this is. Pie. Apples. Apple pie."
@@ -240,10 +238,10 @@ export default function App() {
         }
       />
       */}
-
-      {showModal && (
-        <SignIn onSignIn={() => signIn} onModalClose={() => onModalClose} />
-      )}
+        {showModal && (
+          <SignIn onSignIn={() => signIn} onModalClose={() => onModalClose} />
+        )}
+      </div>
     </>
   );
 }

@@ -1,10 +1,9 @@
 {
-  "_id": "65ffbeca6b8546b880833dd0",
-  "data": {
-    "start_date": null,
-    "end_date": null,
-    "price": null,
-    "entries": null,
-    "prize_pool": null
-  }
+  "_id": "65ffd1f96cb553f6b1795342",
+  "is_current_draw": true,
+  "start_date": "2024-03-24T07:10:49.177Z",
+  "end_date": "2024-03-31T16:00:00.000Z",
+  "price": 1,
+  "entries": 0,
+  "prize_pool": 0
 }

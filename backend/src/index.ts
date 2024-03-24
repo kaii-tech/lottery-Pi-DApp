@@ -6,10 +6,13 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import logger from 'morgan';
 import MongoStore from 'connect-mongo';
-import { MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 import env from './environments';
 import mountPaymentsEndpoints from './handlers/payments';
 import mountUserEndpoints from './handlers/users';
+import { updateCurrentDrawLocal } from './app/currentDraw';
+
+
 
 // We must import typedefs for ts-node-dev to pick them up when they change (even though tsc would supposedly
 // have no problem here)
@@ -17,7 +20,7 @@ import mountUserEndpoints from './handlers/users';
 import "./types/session";
 
 const dbName = env.mongo_db_name;
-const mongoUri = `mongodb://${env.mongo_host}/${dbName}`;
+const mongoUri = `mongodb+srv://${env.mongo_user}:${env.mongo_password}@${env.mongo_host}/?retryWrites=true&w=majority&appName=Pi-DB-Cluster`;
 const mongoClientOptions = {
   authSource: "admin",
   auth: {
@@ -95,6 +98,8 @@ app.listen(8000, async () => {
     const db = client.db(dbName);
     app.locals.orderCollection = db.collection('orders');
     app.locals.userCollection = db.collection('users');
+    //added by me (CurrentDraw Collection)
+    app.locals.currentDrawCollection=db.collection("current_draw");
     console.log('Connected to MongoDB on: ', mongoUri)
   } catch (err) {
     console.error('Connection to MongoDB failed: ', err)
@@ -102,4 +107,9 @@ app.listen(8000, async () => {
 
   console.log('App platform demo app - Backend listening on port 8000!');
   console.log(`CORS config: configured to respond to a frontend hosted on ${env.frontend_url}`);
+  console.log()
+  console.log()
+  console.log()
+  updateCurrentDrawLocal(app.locals.currentDrawCollection);
 });
+

@@ -1,0 +1,10 @@
+{
+    "_id": null,
+    "data": {
+        "start_date": null,
+        "end_date": null,
+        "price": null,
+        "entries": null,
+        "prize_pool": null
+    }
+}
